@@ -10,6 +10,17 @@
     <!-- Canonical URL -->
     <link rel="canonical" href="https://example.com/about.html">
     <link rel="stylesheet" href="css/style.css">
+    <script>
+      (function() {
+        var currentTheme = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (currentTheme === 'dark' || (!currentTheme && prefersDark)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
 </head>
 <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -18,14 +29,6 @@
         <div class="container nav-container">
             <a href="index.html" class="nav-brand" aria-label="M. Sai Supriya Home">M. Sai Supriya</a>
             
-            <button id="mobile-menu-btn" class="mobile-menu-btn" aria-expanded="false" aria-controls="primary-navigation" aria-label="Toggle navigation menu">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-            </button>
-            
             <nav id="primary-navigation" class="nav-menu" aria-label="Primary navigation">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="about.html" class="nav-link" aria-current="page">About</a>
@@ -33,6 +36,20 @@
                 <a href="projects.html" class="nav-link">Projects</a>
                 <a href="contact.html" class="nav-link">Contact</a>
             </nav>
+
+            <div class="nav-controls">
+                <button class="theme-toggle-btn" aria-label="Toggle dark mode">
+                    <svg viewBox="0 0 24 24"><path d="M12 21c-4.97 0-9-4.03-9-9s4.03-9 9-9 9 4.03 9 9-4.03 9-9 9zm0-16c-3.86 0-7 3.14-7 7s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm0 12c-2.76 0-5-2.24-5-5s2.24-5 5-5v10z"/></svg>
+                </button>
+                
+                <button id="mobile-menu-btn" class="mobile-menu-btn" aria-expanded="false" aria-controls="primary-navigation" aria-label="Toggle navigation menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
         </div>
     </header>
 

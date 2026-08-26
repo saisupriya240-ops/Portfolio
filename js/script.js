@@ -1,12 +1,46 @@
 /**
  * script.js
- * Vanilla JS logic for mobile navigation and form validation
+ * Vanilla JS logic for mobile navigation, theme toggling, and form validation
  */
 
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   initMobileNavigation();
   initContactForm();
 });
+
+/**
+ * Initializes the light/dark theme toggle and respects system preference.
+ */
+function initTheme() {
+  const toggleBtns = document.querySelectorAll('.theme-toggle-btn');
+  if (toggleBtns.length === 0) return;
+
+  const currentTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  // Set initial theme
+  if (currentTheme === 'dark' || (!currentTheme && prefersDark)) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+
+  // Handle toggle click
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      let theme = document.documentElement.getAttribute('data-theme');
+      
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+  });
+}
 
 /**
  * Initializes the accessible mobile navigation menu.
