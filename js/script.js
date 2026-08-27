@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /**
  * Initializes the light/dark theme toggle and respects system preference.
+ * Updates aria-label on the button to reflect current theme state.
  */
 function initTheme() {
   const toggleBtns = document.querySelectorAll('.theme-toggle-btn');
@@ -20,25 +21,31 @@ function initTheme() {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   
   // Set initial theme
-  if (currentTheme === 'dark' || (!currentTheme && prefersDark)) {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  } else {
-    document.documentElement.setAttribute('data-theme', 'light');
-  }
+  const isDark = currentTheme === 'dark' || (!currentTheme && prefersDark);
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  updateThemeToggleLabel(toggleBtns, isDark ? 'dark' : 'light');
 
   // Handle toggle click
   toggleBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      let theme = document.documentElement.getAttribute('data-theme');
-      
-      if (theme === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'light');
-        localStorage.setItem('theme', 'light');
-      } else {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('theme', 'dark');
-      }
+      const theme = document.documentElement.getAttribute('data-theme');
+      const newTheme = theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeToggleLabel(toggleBtns, newTheme);
     });
+  });
+}
+
+/**
+ * Updates the aria-label on all theme toggle buttons to reflect the action they will perform.
+ * @param {NodeList} btns
+ * @param {string} currentTheme - 'light' or 'dark'
+ */
+function updateThemeToggleLabel(btns, currentTheme) {
+  btns.forEach(btn => {
+    btn.setAttribute('aria-label', currentTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+    btn.setAttribute('aria-pressed', currentTheme === 'dark' ? 'true' : 'false');
   });
 }
 
@@ -55,7 +62,7 @@ function initMobileNavigation() {
     const isExpanded = menuBtn.getAttribute('aria-expanded') === 'true';
     
     // Toggle aria-expanded
-    menuBtn.setAttribute('aria-expanded', !isExpanded);
+    menuBtn.setAttribute('aria-expanded', String(!isExpanded));
     
     // Toggle menu visibility
     if (!isExpanded) {
@@ -65,6 +72,14 @@ function initMobileNavigation() {
     }
   });
 
+  // Close menu when clicking a nav link (mobile UX)
+  navMenu.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      menuBtn.setAttribute('aria-expanded', 'false');
+      navMenu.classList.remove('is-open');
+    });
+  });
+
   // Close menu when clicking outside
   document.addEventListener('click', (e) => {
     if (!menuBtn.contains(e.target) && !navMenu.contains(e.target)) {
@@ -72,6 +87,15 @@ function initMobileNavigation() {
         menuBtn.setAttribute('aria-expanded', 'false');
         navMenu.classList.remove('is-open');
       }
+    }
+  });
+
+  // Close menu on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menuBtn.getAttribute('aria-expanded') === 'true') {
+      menuBtn.setAttribute('aria-expanded', 'false');
+      navMenu.classList.remove('is-open');
+      menuBtn.focus();
     }
   });
 }
