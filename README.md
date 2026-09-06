@@ -17,17 +17,38 @@ portfolio/
 ├── about.html       (About Me & Education)
 ├── skills.html      (Technical proficiencies)
 ├── projects.html    (Selected works)
+├── todo.html        (Interactive To-Do Application)
 ├── contact.html     (Accessible contact form)
 │
 ├── css/
-│   └── style.css    (Main stylesheet)
+│   └── style.css    (Main stylesheet with To-Do styles)
 │
 ├── js/
-│   └── script.js    (Navigation & Form Validation)
+│   ├── script.js    (Navigation, Theme Toggle & Form Validation)
+│   └── todo.js      (To-Do Application State & DOM Logic)
 │
 ├── robots.txt       (Crawler directives)
 └── sitemap.xml      (XML Sitemap)
 ```
+
+## JavaScript To-Do Application
+
+An interactive client-side task management application built using vanilla JavaScript.
+
+### Features
+
+- Create tasks
+- Read and display tasks
+- Edit tasks
+- Delete tasks
+- Mark tasks as completed
+- All / Active / Completed filtering
+- localStorage persistence
+- Dynamic DOM rendering
+- Event delegation
+- Responsive design
+- Accessible controls
+- Light/dark theme compatibility
 
 ## Running Locally
 
