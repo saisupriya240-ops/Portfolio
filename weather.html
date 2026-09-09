@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Weather Dashboard | M. Sai Supriya</title>
+    <meta name="description" content="Interactive client-side Weather Dashboard built with vanilla JavaScript and Open-Meteo REST APIs, featuring asynchronous geocoding, real-time forecast metrics, robust error handling, and WCAG AA accessibility.">
+    <meta name="author" content="M. Sai Supriya">
+    
+    <!-- Open Graph Metadata -->
+    <meta property="og:title" content="Interactive Weather Dashboard | M. Sai Supriya">
+    <meta property="og:description" content="Interactive client-side Weather Dashboard built with vanilla JavaScript and Open-Meteo REST APIs.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://example.com/weather.html">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://example.com/weather.html">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%E2%9B%85</text></svg>">
+    
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Portfolio Interactive Weather Dashboard",
+      "url": "https://example.com/weather.html",
+      "applicationCategory": "WeatherApplication",
+      "operatingSystem": "All modern browsers",
+      "browserRequirements": "Requires JavaScript",
+      "author": {
+        "@type": "Person",
+        "name": "M. Sai Supriya"
+      },
+      "description": "Interactive Weather Dashboard using Open-Meteo Geocoding and Weather Forecast APIs, async/await, and WCAG AA accessibility."
+    }
+    </script>
+    <script>
+      (function() {
+        var currentTheme = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (currentTheme === 'dark' || (!currentTheme && prefersDark)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <header class="site-header" role="banner">
+        <div class="container nav-container">
+            <a href="index.html" class="nav-brand">M. Sai Supriya</a>
+            
+            <nav id="primary-navigation" class="nav-menu" aria-label="Primary navigation">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="about.html" class="nav-link">About</a>
+                <a href="skills.html" class="nav-link">Skills</a>
+                <a href="projects.html" class="nav-link">Projects</a>
+                <a href="todo.html" class="nav-link">To-Do</a>
+                <a href="weather.html" class="nav-link" aria-current="page">Weather</a>
+                <a href="contact.html" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="nav-controls">
+                <button class="theme-toggle-btn" aria-label="Toggle dark mode">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21c-4.97 0-9-4.03-9-9s4.03-9 9-9 9 4.03 9 9-4.03 9-9 9zm0-16c-3.86 0-7 3.14-7 7s3.14 7 7 7 7-3.14 7-7-3.14-7-7-7zm0 12c-2.76 0-5-2.24-5-5s2.24-5 5-5v10z"/></svg>
+                </button>
+                
+                <button id="mobile-menu-btn" class="mobile-menu-btn" aria-expanded="false" aria-controls="primary-navigation" aria-label="Toggle navigation menu">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content" tabindex="-1">
+        <!-- Hero Header -->
+        <section class="section pb-0" aria-labelledby="weather-page-title">
+            <div class="container text-center-mobile">
+                <span class="hero-label">Interactive Application</span>
+                <h1 id="weather-page-title" class="hero-title">Live Weather Dashboard</h1>
+                <p class="hero-subtitle">
+                    A client-side weather application powered by the Open-Meteo REST API, vanilla JavaScript, and modern asynchronous patterns. Search any city worldwide for instant meteorological conditions.
+                </p>
+            </div>
+        </section>
+
+        <!-- Main Weather Dashboard Section -->
+        <section class="section" aria-labelledby="weather-app-heading">
+            <div class="container">
+                <h2 id="weather-app-heading" class="sr-only">Weather Forecast Application</h2>
+                
+                <!-- Live region for accessible screen-reader updates -->
+                <div id="weather-live-region" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+                <div class="weather-app-card">
+                    <!-- City Search Form -->
+                    <form id="weather-form" class="weather-form" role="search" novalidate aria-label="Search city weather form">
+                        <label for="city-input" class="weather-input-label">Enter City or Location</label>
+                        <div class="weather-input-group">
+                            <input 
+                                type="search" 
+                                id="city-input" 
+                                name="city" 
+                                class="weather-input" 
+                                placeholder="e.g., Hyderabad, Tokyo, London..." 
+                                maxlength="100" 
+                                autocomplete="off"
+                                aria-describedby="city-input-hint"
+                                required
+                            >
+                            <button type="submit" id="weather-search-btn" class="btn btn-primary weather-search-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                <span>Search</span>
+                            </button>
+                        </div>
+                        <p id="city-input-hint" class="form-hint">Enter any global city to fetch current temperature, relative humidity, wind speed, and weather condition.</p>
+                        
+                        <!-- Quick Suggestions -->
+                        <div class="weather-quick-actions" aria-label="Suggested cities">
+                            <span>Popular:</span>
+                            <button type="button" class="weather-pill-btn" data-city="Hyderabad">Hyderabad</button>
+                            <button type="button" class="weather-pill-btn" data-city="Tokyo">Tokyo</button>
+                            <button type="button" class="weather-pill-btn" data-city="London">London</button>
+                            <button type="button" class="weather-pill-btn" data-city="New York">New York</button>
+                        </div>
+                    </form>
+
+                    <!-- Error Alert Banner -->
+                    <div id="weather-error" class="weather-error-msg" role="alert" hidden style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        <span id="weather-error-text"></span>
+                    </div>
+
+                    <!-- Loading State Indicator -->
+                    <div id="weather-loading" class="weather-loading" hidden aria-hidden="true" style="display: none;">
+                        <div class="weather-spinner"></div>
+                        <span class="weather-loading-text">Fetching weather data...</span>
+                    </div>
+
+                    <!-- Initial Empty State -->
+                    <div id="weather-empty-state" class="weather-empty-state">
+                        <div class="weather-empty-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="4"></circle>
+                                <path d="M12 2v2"></path>
+                                <path d="M12 20v2"></path>
+                                <path d="m4.93 4.93 1.41 1.41"></path>
+                                <path d="m17.66 17.66 1.41 1.41"></path>
+                                <path d="M2 12h2"></path>
+                                <path d="M20 12h2"></path>
+                                <path d="m6.34 17.66-1.41 1.41"></path>
+                                <path d="m19.07 4.93-1.41 1.41"></path>
+                            </svg>
+                        </div>
+                        <h3 class="weather-empty-title">Search for a city</h3>
+                        <p class="weather-empty-desc">Search for a city to view current weather.</p>
+                    </div>
+
+                    <!-- Weather Results View -->
+                    <div id="weather-results" class="weather-results" hidden style="display: none;">
+                        <!-- Location Title Header -->
+                        <div class="weather-location-header">
+                            <div>
+                                <h3 id="weather-city-name" class="weather-city-heading">--</h3>
+                                <span id="weather-country-badge" class="weather-country-badge">--</span>
+                            </div>
+                            <span id="weather-coords-info" class="weather-coords-info">--</span>
+                        </div>
+
+                        <!-- Hero Condition Card -->
+                        <div class="weather-hero-card">
+                            <div>
+                                <div class="weather-temp-block">
+                                    <span id="weather-temp-val" class="weather-temp-val">--</span>
+                                    <span class="weather-temp-unit">°C</span>
+                                </div>
+                                <div>
+                                    <span class="weather-condition-badge">
+                                        <span id="weather-condition-desc">--</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div id="weather-hero-icon" class="weather-icon-wrapper" aria-hidden="true">
+                                <!-- Dynamic SVG inserted by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Weather Metrics 4-Column Grid -->
+                        <div class="weather-metrics-grid" aria-label="Detailed meteorological metrics">
+                            <!-- Temperature Metric -->
+                            <div class="weather-metric-card">
+                                <div class="weather-metric-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="weather-metric-info">
+                                    <span class="weather-metric-label">Temperature</span>
+                                    <span id="metric-temp" class="weather-metric-val">--</span>
+                                </div>
+                            </div>
+
+                            <!-- Relative Humidity Metric -->
+                            <div class="weather-metric-card">
+                                <div class="weather-metric-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                                    </svg>
+                                </div>
+                                <div class="weather-metric-info">
+                                    <span class="weather-metric-label">Humidity</span>
+                                    <span id="metric-humidity" class="weather-metric-val">--</span>
+                                </div>
+                            </div>
+
+                            <!-- Wind Speed Metric -->
+                            <div class="weather-metric-card">
+                                <div class="weather-metric-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"></path>
+                                    </svg>
+                                </div>
+                                <div class="weather-metric-info">
+                                    <span class="weather-metric-label">Wind Speed</span>
+                                    <span id="metric-wind" class="weather-metric-val">--</span>
+                                </div>
+                            </div>
+
+                            <!-- Weather Condition Metric -->
+                            <div class="weather-metric-card">
+                                <div class="weather-metric-icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+                                    </svg>
+                                </div>
+                                <div class="weather-metric-info">
+                                    <span class="weather-metric-label">Condition</span>
+                                    <span id="metric-condition" class="weather-metric-val">--</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Attribution -->
+                        <p class="weather-data-source">
+                            Live data sourced from <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a> API.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Architecture & Highlights -->
+        <section class="section bg-alt" aria-labelledby="weather-tech-heading">
+            <div class="container">
+                <h2 id="weather-tech-heading">Architecture &amp; Implementation</h2>
+                <div class="grid-2">
+                    <article class="card" aria-labelledby="feat-async">
+                        <h3 id="feat-async" class="card-title">Asynchronous Fetch &amp; Async/Await</h3>
+                        <p>Implements modern JavaScript async/await syntax to execute non-blocking HTTP requests, validating network responses with <code>response.ok</code> and handling potential network failures cleanly with <code>try/catch</code>.</p>
+                        <ul class="tag-list" aria-label="Technologies used">
+                            <li class="tag">Fetch API</li>
+                            <li class="tag">async / await</li>
+                            <li class="tag">Promises</li>
+                        </ul>
+                    </article>
+
+                    <article class="card" aria-labelledby="feat-geocoding">
+                        <h3 id="feat-geocoding" class="card-title">Dual REST API Pipeline</h3>
+                        <p>Chains Open-Meteo's Geocoding API to resolve arbitrary city names into latitude/longitude coordinates, passing resolved metadata directly to the Weather Forecast API for accurate real-time metrics.</p>
+                        <ul class="tag-list" aria-label="Technologies used">
+                            <li class="tag">Open-Meteo Geocoding</li>
+                            <li class="tag">Forecast API</li>
+                            <li class="tag">JSON Pipelines</li>
+                        </ul>
+                    </article>
+
+                    <article class="card" aria-labelledby="feat-resilience">
+                        <h3 id="feat-resilience" class="card-title">Defensive Error Handling</h3>
+                        <p>Provides explicit feedback for empty inputs, unresolved city queries, malformed payloads, and network disconnection, completely eliminating silent unhandled promise rejections or dashboard crashes.</p>
+                        <ul class="tag-list" aria-label="Technologies used">
+                            <li class="tag">Fault Tolerance</li>
+                            <li class="tag">Input Validation</li>
+                            <li class="tag">User Feedback</li>
+                        </ul>
+                    </article>
+
+                    <article class="card" aria-labelledby="feat-a11y-weather">
+                        <h3 id="feat-a11y-weather" class="card-title">WCAG AA &amp; Theme Integration</h3>
+                        <p>Incorporates ARIA live regions for screen readers, semantic form controls, visible focus indicators, and full CSS variable reuse for seamless light and dark mode switching.</p>
+                        <ul class="tag-list" aria-label="Technologies used">
+                            <li class="tag">ARIA Live Regions</li>
+                            <li class="tag">Semantic HTML5</li>
+                            <li class="tag">Dark Mode Tokens</li>
+                        </ul>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <strong>M. Sai Supriya</strong>
+                    <p>AI &amp; Machine Learning Student</p>
+                </div>
+                <nav aria-label="Footer navigation">
+                    <ul class="social-links">
+                        <li><a href="projects.html">Projects</a></li>
+                        <li><a href="todo.html">To-Do</a></li>
+                        <li><a href="weather.html">Weather</a></li>
+                        <li><a href="about.html">About</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 M. Sai Supriya. Built with semantic HTML5.
+            </div>
+        </div>
+    </footer>
+    
+    <script src="js/script.js"></script>
+    <script src="js/weather.js"></script>
+</body>
+</html>

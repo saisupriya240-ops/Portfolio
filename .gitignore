@@ -1,0 +1,9 @@
+# Lighthouse generated reports and audit outputs
+*.report.html
+*lighthouse-report.json
+*.report.json
+.lighthouseci/
+
+# Operating System temporary files
+.DS_Store
+Thumbs.db

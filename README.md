@@ -18,18 +18,33 @@ portfolio/
 ├── skills.html      (Technical proficiencies)
 ├── projects.html    (Selected works)
 ├── todo.html        (Interactive To-Do Application)
+├── weather.html     (Interactive Weather Dashboard)
 ├── contact.html     (Accessible contact form)
 │
 ├── css/
-│   └── style.css    (Main stylesheet with To-Do styles)
+│   └── style.css    (Main stylesheet with To-Do & Weather styles)
 │
 ├── js/
 │   ├── script.js    (Navigation, Theme Toggle & Form Validation)
-│   └── todo.js      (To-Do Application State & DOM Logic)
+│   ├── todo.js      (To-Do Application State & DOM Logic)
+│   └── weather.js   (Weather Dashboard Fetch API & Open-Meteo Logic)
 │
 ├── robots.txt       (Crawler directives)
 └── sitemap.xml      (XML Sitemap)
 ```
+
+## JavaScript Weather Dashboard
+
+An interactive client-side Weather Dashboard that allows users to search weather by city name in real time, powered by Open-Meteo REST APIs.
+
+### Features
+
+- **Search weather by city name:** Chained geocoding resolves global city queries into geographic coordinates, country, and regional metadata.
+- **Open-Meteo REST API:** Uses Open-Meteo's public Geocoding and Weather Forecast APIs without requiring API keys.
+- **Fetch API with async/await:** Employs modern asynchronous JavaScript with `try/catch` exception handling and `response.ok` response validation.
+- **Key Meteorological Metrics:** Renders live Temperature (°C), Relative Humidity (%), Wind Speed (km/h), and human-readable Weather Condition (mapped from WMO weather codes with accessible icons).
+- **Error and loading handling:** Manages dedicated UI states for loading spinners, empty input validation, invalid city queries, and network failures without crashing.
+- **Accessible & Responsive:** WCAG AA compliance with `aria-live` screen-reader updates, semantic HTML, keyboard navigation, and full light/dark theme support.
 
 ## JavaScript To-Do Application
 
@@ -72,15 +87,12 @@ This project was built to target perfect Lighthouse scores:
 - **Best Practices: 100** (Valid HTML, no deprecations)
 - **Performance: ~100** (Lightweight assets, no render-blocking external scripts)
 
-## Git Setup
+## Git Workflow
 
-To initialize this repository and push to GitHub, run the following commands in the project root:
+This repository is connected to GitHub and tracks the `main` branch. To stage, commit, and push your updates:
 
 ```bash
-git init
 git add .
-git commit -m "Initial commit: semantic HTML5 portfolio"
-git branch -M main
-git remote add origin <YOUR_GITHUB_REPOSITORY_URL>
-git push -u origin main
+git commit -m "feat: add interactive weather dashboard"
+git push origin main
 ```
